@@ -1,0 +1,28 @@
+{
+  "name": "btp-document-approval-engine",
+  "version": "1.0.0",
+  "description": "backend in charge of the orquestration of the document management from the respective API REST and Build Process Automation workflow",
+  "keywords": [
+    "sap",
+    "btp",
+    "express",
+    "typescript",
+    "postgresql",
+    "workflow"
+  ],
+  "homepage": "https://github.com/Hanp4n/BTP-Document-Approval-Engine-Backend#readme",
+  "bugs": {
+    "url": "https://github.com/Hanp4n/BTP-Document-Approval-Engine-Backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hanp4n/BTP-Document-Approval-Engine-Backend.git"
+  },
+  "license": "ISC",
+  "author": "Diego Padilla",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
