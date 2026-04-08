@@ -1,7 +1,7 @@
 {
   "name": "btp-document-approval-engine",
   "version": "1.0.0",
-  "description": "backend in charge of the orquestration of the document management from the respective API REST and Build Process Automation workflow",
+  "description": "This is the API REST in charge of the management of the document approval process from the BTP-Document-Approval-Engine frontend and the SAP Build Process Automation workflow.",
   "keywords": [
     "sap",
     "btp",
@@ -20,9 +20,22 @@
   },
   "license": "ISC",
   "author": "Diego Padilla",
-  "type": "commonjs",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "tsc && node dist/index.js",
+    "dev": "nodemon src/index.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.6.0",
+    "@prisma/client": "^7.6.0",
+    "@types/express": "^5.0.6",
+    "express": "^5.2.1",
+    "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "prisma": "^7.6.0"
   }
 }

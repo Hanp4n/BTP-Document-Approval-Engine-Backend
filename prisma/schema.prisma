@@ -1,0 +1,33 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Definición del Enumerado para el Status
+enum DocumentStatus {
+  DRAFT
+  SUBMITTED
+  AUTO_APPROVED
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+model Document {
+  id                    Int            @id @default(autoincrement())
+  supplierName          String         @db.VarChar(255)
+  amount                Decimal        @db.Decimal(15, 2)
+  date                  DateTime       @db.Date
+  description           String?        @db.Text
+  
+  // Usamos el Enum para manejar los estados de forma segura
+  status                DocumentStatus @default(DRAFT)
+  
+  approvalLevelRequired Int            @default(0)
+  currentApprovalStep   Int            @default(0)
+
+  @@map("Documents") // Esto asegura que en la DB la tabla se llame "Documents" con D mayúscula
+}

@@ -1,0 +1,28 @@
+services:
+  # Servicio 1: La Base de Datos
+  db:
+    image: postgres:14.22
+    environment:
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: btp_psswd00
+      POSTGRES_DB: approval_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Servicio 2: Tu API de Express
+  # api:
+  #   build: ./server    # Docker irá a la carpeta server y buscará el Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - DB_HOST=db     # ¡Ojo! Aquí usamos 'db', no 'localhost'
+  #     - DB_USER=diego_admin
+  #     - DB_PASS=sap_password123
+  #     - DB_NAME=approval_db
+  #   depends_on:
+  #     - db             # Espera a que la DB esté lista para arrancar
+
+volumes:
+  pgdata:
