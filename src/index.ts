@@ -105,13 +105,13 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
     let approvalLevelRequired: number = 0;
     
     const { id } = req.params;
-    const documentId = parseInt(id as string);
+    const documentid = parseInt(id as string);
 
-    if (isNaN(documentId)) {
+    if (isNaN(documentid)) {
       return res.status(400).json({ error: "El ID debe ser un número válido" });
     }
     const document = await prisma.document.findUnique({
-      where: { id: documentId },
+      where: { id: documentid },
     });
 
     if (!document) {
@@ -134,7 +134,7 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
     }
 
     const updatedDocument = await prisma.document.update({
-      where: { id: documentId },
+      where: { id: documentid },
       data: {
         status: docStatus,
         approvalLevelRequired: approvalLevelRequired,
@@ -161,7 +161,7 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
         await axios.post(workflowUrl, {
           definitionId: "us10.b331c56btrial.btpdocumentapprovalworkflow.approvalProcess",
           context: {
-            documentId: updatedDocument.id, // Usamos el ID del documento actualizado
+            documentid: updatedDocument.id, // Usamos el ID del documento actualizado
             suppliername: updatedDocument.supplierName, // Ajusta según tus campos de Prisma
             amount: Number(updatedDocument.amount)
           }
@@ -172,7 +172,7 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
           }
         });
 
-        console.log(`Workflow disparado para el documento ${documentId}`);
+        console.log(`Workflow disparado para el documento ${documentid}`);
       } catch (workflowError: any) {
         console.error("Error disparando SAP Workflow:", workflowError.response?.data || workflowError.message);
       }
