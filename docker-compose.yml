@@ -1,5 +1,4 @@
 services:
-  # Servicio 1: La Base de Datos
   db:
     image: postgres:14.22
     environment:
@@ -16,8 +15,6 @@ services:
       ports:
         - "3000:3000"
       environment:
-        # IMPORTANTE: Aquí usamos 'db' en lugar de 'localhost' porque 
-        # dentro de la red de Docker se llaman por su nombre de servicio.
         - DATABASE_URL=postgresql://sa:btp_psswd00@db:5432/approval_db
       depends_on:
         - db

@@ -88,7 +88,6 @@ app.get("/documents/:id", async (req: Request, res: Response) => {
 // Enviar documento
 app.post("/documents/:id/submit", async (req: Request, res: Response) => {
   try {
-    const { supplierName, amount, date, description } = req.body;
 
     let docStatus: DocumentStatus = DocumentStatus.DRAFT;
     let approvalLevelRequired: number = 0;
@@ -110,12 +109,12 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
         return res.status(400).json({ error: "Solo se pueden enviar documentos en estado DRAFT" });
     }
 
-    if (amount < 1000) {
+    if (Number(document.amount) < 1000) {
       docStatus = DocumentStatus.AUTO_APPROVED;
     } else {
       docStatus = DocumentStatus.PENDING_APPROVAL;
 
-      if (amount < 5000) {
+      if (Number(document.amount) < 5000) {
         approvalLevelRequired = 1;
       } else {
         approvalLevelRequired = 2;
@@ -125,10 +124,6 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
     const updatedDocument = await prisma.document.update({
       where: { id: documentId },
       data: {
-        supplierName,
-        amount: Number(amount),
-        date: new Date(date),
-        description: description || null,
         status: docStatus,
         approvalLevelRequired: approvalLevelRequired,
       },
@@ -154,7 +149,7 @@ app.post("/documents/:id/approve", async (req: Request, res: Response) => {
     if (isNaN(documentId)) {
       return res.status(400).json({ error: "El ID debe ser un número válido" });
     }
-
+    
     const document = await prisma.document.findUnique({
       where: { id: documentId },
     });
@@ -162,8 +157,9 @@ app.post("/documents/:id/approve", async (req: Request, res: Response) => {
     if (!document) {
       return res.status(404).json({ error: "Documento no encontrado" });
     }
+
     if (document.status !== DocumentStatus.PENDING_APPROVAL) {
-        return res.status(400).json({ error: "Solo se pueden aprobar documentos en estado PENDING_APPROVAL" });
+        return res.status(400).json({ error: "Solo se pueden aprobar documentos en estado PENDING_APPROVAL o APPROVED" });
     }
 
     let updatedDocument;
@@ -217,7 +213,6 @@ app.post("/documents/:id/reject", async (req: Request, res: Response) => {
     if (document.status !== DocumentStatus.PENDING_APPROVAL) {
         return res.status(400).json({ error: "Solo se pueden rechazar documentos en estado PENDING_APPROVAL" });
     }
-    
     const updatedDocument = await prisma.document.update({
       where: { id: documentId },
       data: {
