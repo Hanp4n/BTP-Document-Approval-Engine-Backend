@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import prisma from "./db.js"; // Tu instancia centralizada de Prisma
 import { DocumentStatus } from "@prisma/client";
+import axios from "axios";
 const app = express();
 const PORT = 3000;
 
@@ -128,6 +129,43 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
         approvalLevelRequired: approvalLevelRequired,
       },
     });
+
+    if (docStatus === DocumentStatus.PENDING_APPROVAL) {
+      try {
+        // 1. Obtener Token de SAP
+        const authUrl = "https://b331c56btrial.authentication.us10.hana.ondemand.com/oauth/token?grant_type=client_credentials";
+        const clientId = "sb-8bbcbad9-7516-469a-a1ad-428beb24d82d!b629030|xsuaa!b49390";
+        const clientSecret = "a0f065b4-00b3-45e4-91c6-e72fd6aed915$i-Mho4D5vOUxM0cQsevMbwgNZGEkOo7u7zd-ZmmvL1o=";
+
+        const authResponse = await axios.post(authUrl, null, {
+          headers: {
+            'Authorization': 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+          }
+        });
+
+        const accessToken = authResponse.data.access_token;
+
+        const workflowUrl = "https://spa-api-gateway-bpi-us-prod.cfapps.us10.hana.ondemand.com/workflow/rest/v1/workflow-instances";
+        
+        await axios.post(workflowUrl, {
+          definitionId: "us10.b331c56btrial.btpdocumentapprovalworkflow.approvalProcess",
+          context: {
+            documentId: updatedDocument.id, // Usamos el ID del documento actualizado
+            suppliername: updatedDocument.supplierName, // Ajusta según tus campos de Prisma
+            amount: Number(updatedDocument.amount)
+          }
+        }, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log(`Workflow disparado para el documento ${documentId}`);
+      } catch (workflowError: any) {
+        console.error("Error disparando SAP Workflow:", workflowError.response?.data || workflowError.message);
+      }
+    }
 
     res.status(200).json(updatedDocument);
   } catch (error: any) {
