@@ -2,10 +2,18 @@ import express, { Request, Response } from "express";
 import prisma from "./db.js"; // Tu instancia centralizada de Prisma
 import { DocumentStatus } from "@prisma/client";
 import axios from "axios";
+import cors from "cors";
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+app.use(cors({
+  origin: 'https://btp-document-approval-engine.netlify.app', // Permite solo tu frontend local
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Hola Mundo con TypeScript");
 });
