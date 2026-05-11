@@ -52,13 +52,48 @@ app.post("/documents", async (req: Request, res: Response) => {
   }
 });
 
+// Modificar documento
+app.put("/documents/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const documentId = parseInt(id as string);
+
+    if (isNaN(documentId)) {
+      return res.status(400).json({ error: "El ID debe ser un número válido" });
+    }
+
+    const { supplierName, amount, date, description } = req.body;
+
+    const updatedDocument = await prisma.document.update({
+      where: { id: documentId },
+      data: {
+        supplierName,
+        amount: Number(amount),
+        date: new Date(date),
+        description: description || null,
+        status: DocumentStatus.DRAFT,
+        approvalLevelRequired: 0,
+        currentApprovalStep: 0,
+      },
+    });
+    res.status(201).json(updatedDocument);
+  } catch (error: any) {
+    console.error("Error al actualizar documento:", error);
+
+    res.status(500).json({
+      error: "Error interno del servidor",
+      details: error.message,
+    });
+  }
+});
+
 // Mostrar todos los documentos
 app.get("/documents", async (req: Request, res: Response) => {
   try {
     const docs = await prisma.document.findMany({});
     res.status(201).json(docs);
   } catch (error: any) {
-    console.error("Error al crear documento:", error);
+    console.error("Error al obtener documentos:", error);
 
     res.status(500).json({
       error: "Error interno del servidor",
@@ -88,7 +123,7 @@ app.get("/documents/:id", async (req: Request, res: Response) => {
 
     res.json(document);
   } catch (error: any) {
-    console.error("Error al crear documento:", error);
+    console.error("Error al obtener documento:", error);
 
     res.status(500).json({
       error: "Error interno del servidor",
@@ -180,7 +215,7 @@ app.post("/documents/:id/submit", async (req: Request, res: Response) => {
 
     res.status(200).json(updatedDocument);
   } catch (error: any) {
-    console.error("Error al crear documento:", error);
+    console.error("Error al actualizar documento:", error);
 
     res.status(500).json({
       error: "Error interno del servidor",
@@ -233,7 +268,7 @@ app.post("/documents/:id/approve", async (req: Request, res: Response) => {
 
     res.status(200).json(updatedDocument);
   } catch (error: any) {
-    console.error("Error al crear documento:", error);
+    console.error("Error al actualizar documento:", error);
 
     res.status(500).json({
       error: "Error interno del servidor",
@@ -262,6 +297,7 @@ app.post("/documents/:id/reject", async (req: Request, res: Response) => {
     if (document.status !== DocumentStatus.PENDING_APPROVAL) {
         return res.status(400).json({ error: "Solo se pueden rechazar documentos en estado PENDING_APPROVAL" });
     }
+    
     const updatedDocument = await prisma.document.update({
       where: { id: documentId },
       data: {
@@ -271,7 +307,7 @@ app.post("/documents/:id/reject", async (req: Request, res: Response) => {
 
     res.status(200).json(updatedDocument);
   } catch (error: any) {
-    console.error("Error al crear documento:", error);
+    console.error("Error al rechazar documento:", error);
 
     res.status(500).json({
       error: "Error interno del servidor",
